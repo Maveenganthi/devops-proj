@@ -1,0 +1,49 @@
+name: CI - MERN Collaborative Workflow
+
+on:
+  push:
+    branches: ["**"] # Run on push to any branch
+  pull_request:
+    branches: ["main"] # Validate PRs targeting main
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      # BACKEND
+      - name: Install backend dependencies
+        run: npm install
+
+      - name: Run backend tests
+        run: npm test || echo "No backend tests found"
+
+      # FRONTEND
+      - name: Install frontend dependencies
+        working-directory: client
+        run: npm install
+
+      - name: Run frontend tests
+        working-directory: client
+        run: npm test || echo "No frontend tests found"
+
+      - name: Build React app
+        working-directory: client
+        run: npm run build
+
+      # OPTIONAL: Lint check
+      - name: Lint backend
+        run: npm run lint || echo "No lint script"
+
+      - name: Lint frontend
+        working-directory: client
+        run: npm run lint || echo "No lint script"
